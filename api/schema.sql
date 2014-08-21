@@ -209,35 +209,38 @@ CREATE TABLE `directus_privileges` (
   `table_name` varchar(255) CHARACTER SET latin1 NOT NULL,
   `permissions` varchar(500) CHARACTER SET latin1 DEFAULT NULL COMMENT 'Table-level permissions (insert, delete, etc.)',
   `group_id` int(11) NOT NULL,
+  `status_id` int(11) DEFAULT NULL,
+  `allowed_status` varchar(255) DEFAULT NULL,
   `read_field_blacklist` varchar(1000) CHARACTER SET latin1 DEFAULT NULL,
   `write_field_blacklist` varchar(1000) CHARACTER SET latin1 DEFAULT NULL,
   `unlisted` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8;
 
 LOCK TABLES `directus_privileges` WRITE;
 /*!40000 ALTER TABLE `directus_privileges` DISABLE KEYS */;
 
-INSERT INTO `directus_privileges` (`id`, `table_name`, `permissions`, `group_id`, `read_field_blacklist`, `write_field_blacklist`, `unlisted`)
+INSERT INTO `directus_privileges` (`id`, `table_name`, `permissions`, `group_id`, `status_id`, `allowed_status`, `read_field_blacklist`, `write_field_blacklist`, `unlisted`)
 VALUES
-  (1,'directus_activity','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (2,'directus_columns','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (3,'directus_groups','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (4,'directus_files','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (5,'directus_messages','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (6,'directus_preferences','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (7,'directus_privileges','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (8,'directus_settings','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (9,'directus_tables','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (10,'directus_ui','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (11,'directus_users','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (12,'directus_ip_whitelist','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (13,'directus_social_feeds','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (14,'directus_messages_recipients','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (15,'directus_social_posts','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (16,'directus_storage_adapters','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (17,'directus_tab_privileges','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL),
-  (18,'directus_bookmarks','add,edit,bigedit,delete,bigdelete,alter,view,bigview',1,NULL,NULL,NULL);
+  (1, 'directus_activity', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (2, 'directus_columns', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (3, 'directus_groups', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (4, 'directus_files', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, '0,1,2', NULL, NULL, NULL),
+  (5, 'directus_messages', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (6, 'directus_preferences', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (7, 'directus_privileges', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (8, 'directus_settings', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (9, 'directus_tables', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (10, 'directus_ui', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (11, 'directus_users', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, '0,1,2', NULL, NULL, NULL),
+  (12, 'directus_ip_whitelist', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (13, 'directus_social_feeds', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (14, 'directus_messages_recipients', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (15, 'directus_social_posts', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (16, 'directus_storage_adapters', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (17, 'directus_tab_privileges', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL),
+  (18, 'directus_bookmarks', 'add,edit,bigedit,delete,bigdelete,alter,view,bigview', 1, NULL, NULL, NULL, NULL, NULL);
+
 
 /*!40000 ALTER TABLE `directus_privileges` ENABLE KEYS */;
 UNLOCK TABLES;

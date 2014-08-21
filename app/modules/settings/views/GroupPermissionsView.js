@@ -45,7 +45,7 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
     },
 
     initialize: function(options) {
-      this.contentView = new EditFields({model: this.model});
+      this.contentView = new EditFields({model: this.model, currentState: options.currentState});
     }
   });
 
@@ -90,7 +90,7 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
           }
         }
 
-        this.model.save();
+        this.model.save({activeState: this.selectedState});
       }
     },
 
@@ -114,6 +114,7 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
     },
 
     initialize: function(options) {
+      this.currentState = options.currentState;
       this.render();
     }
   });
@@ -137,7 +138,7 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
     },
 
     initialize: function(options) {
-      this.contentView = new EditActive({model: this.model});
+      this.contentView = new EditActive({model: this.model, currentState: options.currentState});
     }
   });
 
@@ -153,22 +154,22 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
         if(allowedStatus.length === 1 && allowedStatus[0] === '') {
           allowedStatus = [];
         }
+
         this.toggleIcon($target);
 
         //Removing so remove from allowed active
         if($target.parent().hasClass('delete-color')) {
-          if(allowedStatus.indexOf($tr.data('state-id')) !== -1) {
-            allowedStatus.splice(allowedStatus.indexOf($tr.data('state-id')), 1);
+          if(allowedStatus.indexOf($tr.data('state-id').toString()) !== -1) {
+            allowedStatus.splice(allowedStatus.indexOf($tr.data('state-id').toString()), 1);
             this.model.set({allowed_status: allowedStatus.join(",")});
           }
         } else {
-          if(allowedStatus.indexOf($tr.data('state-id')) === -1) {
-            allowedStatus.push($tr.data('state-id'));
+          if(allowedStatus.indexOf($tr.data('state-id').toString()) === -1) {
+            allowedStatus.push($tr.data('state-id').toString());
             this.model.set({allowed_status: allowedStatus.join(",")});
           }
         }
-
-        this.model.save();
+        this.model.save({activeState: this.currentState});
       }
     },
 
@@ -184,11 +185,12 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
         allowedStatus = [];
       }
       var that = this;
-      data.states = app.statusMapping.mapping.map(function(state, stateId) {
-        state.id = stateId;
+      data.states = app.statusMapping.mapping.filter(function(s){
+        if(s.id == that.currentState){return false;} return true;
+      }).map(function(state) {
         state.enabled = false;
 
-        if(allowedStatus.indexOf(stateId.toString()) !== -1) {
+        if(allowedStatus.indexOf(state.id.toString()) !== -1) {
           state.enabled = true;
         }
 
@@ -199,6 +201,7 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
     },
 
     initialize: function(options) {
+      this.currentState = options.currentState;
       this.render();
     }
   });
@@ -308,7 +311,7 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
 
       var model = this.collection.get(cid);
       //@todo: link real col
-      var view = new EditFieldsOverlay({model: model});
+      var view = new EditFieldsOverlay({model: model, currentState: this.selectedState});
       app.router.overlayPage(view);
     },
 
@@ -320,8 +323,7 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
         cid = $tr.data('cid');
 
       var model = this.collection.get(cid);
-
-      var view = new EditActiveOverlay({model: model});
+      var view = new EditActiveOverlay({model: model, currentState: this.selectedState});
       app.router.overlayPage(view);
     },
 
@@ -555,13 +557,22 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
     serialize: function() {
       var data = {mapping: []};
       var mapping = app.statusMapping.mapping;
-
-      for(var key in mapping) {
-        //Do not show option for deleted status
-        if(key != app.statusMapping.deleted_num) {
-          data.mapping.push({id: key, name: mapping[key].name});
+      mapping.sort(function(a, b) {
+        if(a.sort < b.sort) {
+          return -1;
         }
-      }
+        if(a.sort > b.sort) {
+          return 1;
+        }
+        return 0;
+      });
+
+      mapping.forEach(function(item) {
+        if(item.id != app.statusMapping.deleted_num) {
+          data.mapping.push(item);
+        }
+      });
+
       return data;
     },
 

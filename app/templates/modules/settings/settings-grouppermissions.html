@@ -2,6 +2,7 @@
 	<thead>
 		<tr>
 			<th class="field-note">Table</th>
+      <th class="permissions">Active</th>
 			<th class="permissions">Fields</th>
 			<th class="permissions">View</th>
 			<th class="permissions">Add</th>
@@ -13,6 +14,7 @@
 		{{#tables}}
 		<tr class="" data-table-name="{{table_name}}" data-id="{{id}}" data-cid="{{cid}}">
 			<td>{{title}}</td>
+      {{#if showActiveEdit}}<td class="editActive"><span class="icon icon-text-doc"></span></td>{{else}}<td class="editActive"></td>{{/if}}
 			<td class="editFields"><span class="icon icon-text-doc"></span></td>
 			{{#with permissions}}
 			<td data-value="view">

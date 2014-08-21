@@ -66,11 +66,9 @@ class DirectusPrivilegesTableGateway extends AclAwareTableGateway {
     // @todo This currently only supports permissions,
     // include blacklists when there is a UI for it
     public function updatePrivilege($attributes) {
-
-
       $update = new Update($this->getTable());
       $update->where->equalTo('id', $attributes['id']);
-      $update->set(array('permissions' => $attributes['permissions'], 'read_field_blacklist' => $attributes['read_field_blacklist'], 'write_field_blacklist' =>$attributes['write_field_blacklist']));
+      $update->set(array('permissions' => $attributes['permissions'], 'read_field_blacklist' => $attributes['read_field_blacklist'], 'write_field_blacklist' =>$attributes['write_field_blacklist'], 'allowed_status'=>$attributes['allowed_status']));
         $this->updateWith($update);
 
         return $this->fetchById($attributes['id']);

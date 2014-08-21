@@ -118,6 +118,91 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
     }
   });
 
+  var EditActiveOverlay = BasePageView.extend({
+    headerOptions: {
+      route: {
+        title: 'Edit Active',
+        isOverlay: true
+      }
+    },
+
+    events: {
+      'click #removeOverlay': function() {
+        app.router.removeOverlayPage(this);
+      }
+    },
+
+    afterRender: function() {
+      this.setView('#page-content', this.contentView);
+    },
+
+    initialize: function(options) {
+      this.contentView = new EditActive({model: this.model});
+    }
+  });
+
+  var EditActive = Backbone.Layout.extend({
+    template: 'modules/settings/settings-grouppermissions-editactive',
+
+    events: {
+      'click td > span': function(e) {
+        var $target = $(e.target),
+            $tr = $target.closest('tr');
+
+        var allowedStatus = (this.model.get('allowed_status') || '').split(',');
+        if(allowedStatus.length === 1 && allowedStatus[0] === '') {
+          allowedStatus = [];
+        }
+        this.toggleIcon($target);
+
+        //Removing so remove from allowed active
+        if($target.parent().hasClass('delete-color')) {
+          if(allowedStatus.indexOf($tr.data('state-id')) !== -1) {
+            allowedStatus.splice(allowedStatus.indexOf($tr.data('state-id')), 1);
+            this.model.set({allowed_status: allowedStatus.join(",")});
+          }
+        } else {
+          if(allowedStatus.indexOf($tr.data('state-id')) === -1) {
+            allowedStatus.push($tr.data('state-id'));
+            this.model.set({allowed_status: allowedStatus.join(",")});
+          }
+        }
+
+        this.model.save();
+      }
+    },
+
+    toggleIcon: function($span) {
+      $span.parent().toggleClass('add-color').toggleClass('delete-color');
+      $span.toggleClass('icon-block').toggleClass('icon-check');
+    },
+
+    serialize: function() {
+      var data = {states: []};
+      var allowedStatus = (this.model.get('allowed_status') || '').split(',');
+      if(allowedStatus.length === 1 && allowedStatus[0] === '') {
+        allowedStatus = [];
+      }
+      var that = this;
+      data.states = app.statusMapping.mapping.map(function(state, stateId) {
+        state.id = stateId;
+        state.enabled = false;
+
+        if(allowedStatus.indexOf(stateId.toString()) !== -1) {
+          state.enabled = true;
+        }
+
+        return state;
+      });
+
+      return data;
+    },
+
+    initialize: function(options) {
+      this.render();
+    }
+  });
+
   GroupPermissions.Permissions = BasePageView.extend({
     headerOptions: {
       route: {
@@ -128,6 +213,7 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
     template: 'modules/settings/settings-grouppermissions',
 
     events: {
+      'click td.editActive > span': 'editActive',
       'click td.editFields > span': 'editFields',
       'click td > span': function(e) {
         var $target = $(e.target).parent(),
@@ -226,6 +312,19 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
       app.router.overlayPage(view);
     },
 
+    editActive: function(e) {
+      var $target = $(e.target).parent(),
+        $tr = $target.closest('tr'),
+        cid, model;
+
+        cid = $tr.data('cid');
+
+      var model = this.collection.get(cid);
+
+      var view = new EditActiveOverlay({model: model});
+      app.router.overlayPage(view);
+    },
+
     updatePermissionList: function(value) {
       this.selectedState = value;
       this.render();
@@ -283,6 +382,13 @@ function(app, Backbone, BasePageView, Widgets, SchemaManager) {
         data = model.toJSON();
         data.cid = model.cid;
         data.title = app.capitalize(data.table_name, '_', true);
+
+        //If table has active column, show active edit
+        if(app.schemaManager.getColumns('tables', data.table_name)) {
+          if(app.schemaManager.getColumns('tables', data.table_name).get(app.statusMapping.status_name)) {
+            data.showActiveEdit = true;
+          }
+        }
 
         permissions = (model.get('permissions') || '').split(',');
 

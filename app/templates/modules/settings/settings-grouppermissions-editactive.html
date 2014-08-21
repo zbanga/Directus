@@ -1,0 +1,21 @@
+<table class="table table-striped directus-table not-responsive" id="directus-grouppermissions">
+	<thead>
+		<tr>
+			<th class="field-note">New State</th>
+			<th class="permissions">Allowed</th>
+		</tr>
+	</thead>
+	<tbody>
+    {{#states}}
+    <tr class="" data-state-id="{{id}}">
+      <td>{{name}}</td>
+      <td>
+        {{#if enabled}}
+          <span class="add-color has-privilege"><span title="Can Goto This State" class="icon icon-check"></span></span>
+        {{else}}
+          <span class="delete-color"><span title="Can Not Goto This State" class="icon icon-block"></span></span>
+        {{/if}}
+      </td>
+    {{/states}}
+	</tbody>
+</table>

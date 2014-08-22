@@ -112,7 +112,16 @@ class RelationalTableGateway extends AclAwareTableGateway {
         $newRecordObject = null;
         $parentRecordChanged = $this->recordDataContainsNonPrimaryKeyData($parentRecordWithForeignKeys); // || $recordIsNew;
 
-         if($parentRecordChanged) {
+        $deltaRecordData = $recordIsNew ? array() : array_intersect_key((array) $parentRecordWithForeignKeys, (array) $recordData);
+
+        if(array_key_exists(STATUS_COLUMN_NAME, $deltaRecordData)) {
+          $allowedStatus = $this->acl->getTablePrivilegeList($tableName, \Directus\Acl\Acl::ALLOWED_STATUS_PERMISSIONS);
+          if(array_search($deltaRecordData[STATUS_COLUMN_NAME], $allowedStatus) === false) {
+            throw new \RuntimeException('You do not have permission to change the Status column to this value!');
+          }
+        }
+
+        if($parentRecordChanged) {
 
         //     // Run Custom UI Processing
         //     $customUis = Bootstrap::get('uis');
@@ -270,6 +279,7 @@ class RelationalTableGateway extends AclAwareTableGateway {
         // Yield record object
         $recordGateway = new AclAwareRowGateway($this->acl, $TableGateway->primaryKeyFieldName, $tableName, $this->adapter);
         $recordGateway->populate($fullRecordData, true);
+
         return $recordGateway;
     }
 

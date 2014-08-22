@@ -39,7 +39,7 @@ define(function(require, exports, module) {
         preferences.columns_visible = preferences.columns_visible.split(',');
       }
 
-      var result = _.extend(filters, _.pick(preferences, 'columns_visible', 'sort', 'sort_order', app.statusMapping.status_name));
+      var result = _.extend(filters, _.pick(preferences, 'columns_visible', 'sort', 'sort_order', 'visible_status'));
 
       // preferences normally trump filters, this is an edge case
       // @todo fix the data structure to make this logic less wierd
@@ -51,7 +51,7 @@ define(function(require, exports, module) {
       // @todo make sure that preferences and filters follow the rules!
       if ('directus_users' === this.table.id) {
         // console.warn('Active users only');
-        result[app.statusMapping.status_name] =  app.statusMapping.active_num;
+        result.visible_status =  app.statusMapping.active_num;
       }
 
       return result;
@@ -65,7 +65,7 @@ define(function(require, exports, module) {
         return this.table.get('total');
       }
 
-      var visibleStates = this.getFilter(app.statusMapping.status_name).split(',');
+      var visibleStates = this.getFilter('visible_status').split(',');
       totalCount = 0;
 
       var that = this;
@@ -147,10 +147,9 @@ define(function(require, exports, module) {
         currentPage: 0,
         perPage: this.rowsPerPage,
         sort: 'id',
-        sort_order: 'ASC'
+        sort_order: 'ASC',
+        visible_status: '1,2'
       }, this.filters);
-
-      this.filters[app.statusMapping.status_name] = '1,2';
 
       if (options.preferences) {
         this.preferences = options.preferences;

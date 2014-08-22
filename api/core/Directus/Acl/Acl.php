@@ -15,6 +15,7 @@ class Acl {
     const TABLE_PERMISSIONS     = "permissions";
     const FIELD_READ_BLACKLIST  = "read_field_blacklist";
     const FIELD_WRITE_BLACKLIST = "write_field_blacklist";
+    const ALLOWED_STATUS_PERMISSIONS = "allowed_status";
 
     /**
      * The magic Directus column identifying the record's CMS owner.
@@ -35,7 +36,8 @@ class Acl {
     public static $base_acl = array(
         self::TABLE_PERMISSIONS     => array('add','edit','delete','view'),
         self::FIELD_READ_BLACKLIST  => array(),
-        self::FIELD_WRITE_BLACKLIST => array()
+        self::FIELD_WRITE_BLACKLIST => array(),
+        self::ALLOWED_STATUS_PERMISSIONS => array()
     );
 
     /**
@@ -165,6 +167,8 @@ class Acl {
         }
         $privilegeList = self::$base_acl[$list];
 
+
+
         $groupHasTablePrivileges = array_key_exists($table, $this->groupPrivileges);
         if($groupHasTablePrivileges) {
             if(!isset($this->groupPrivileges[$table][$list]) || !is_array($this->groupPrivileges[$table][$list])) {
@@ -195,8 +199,13 @@ class Acl {
             }
         }
 
-        // Remove null values
-        return array_filter($privilegeList);
+        // Remove null values unless its for allowed statuses (because 0 is valid)
+        if($list !== self::ALLOWED_STATUS_PERMISSIONS) {
+          return array_filter($privilegeList);
+
+        } else {
+          return $privilegeList;
+        }
     }
 
     public function censorFields($table, $data) {

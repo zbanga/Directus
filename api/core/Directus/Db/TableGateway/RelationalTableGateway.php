@@ -117,7 +117,7 @@ class RelationalTableGateway extends AclAwareTableGateway {
         if(array_key_exists(STATUS_COLUMN_NAME, $deltaRecordData)) {
           $allowedStatus = $this->acl->getTablePrivilegeList($tableName, \Directus\Acl\Acl::ALLOWED_STATUS_PERMISSIONS);
           if(array_search($deltaRecordData[STATUS_COLUMN_NAME], $allowedStatus) === false) {
-            throw new \RuntimeException('You do not have permission to change the Status column to this value!');
+            throw new \RuntimeException('You do not have permission to change the Status column to value: '.$deltaRecordData[STATUS_COLUMN_NAME].' in table: '.$tableName);
           }
         }
 

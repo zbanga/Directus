@@ -47,22 +47,19 @@ return array(
 
   'statusMapping' => array(
     '0' => array(
-      'id' => 0,
       'name' => 'Delete',
       'color' => '#C1272D',
-      'sort' => 4
+      'sort' => 3
     ),
     '1' => array(
-      'id' => 1,
       'name' => 'Active',
       'color' => '#5B5B5B',
       'sort' => 1
     ),
     '2' => array(
-      'id' => 2,
       'name' => 'Draft',
       'color' => '#BBBBBB',
-      'sort' => 3
-    )
+      'sort' => 2
+    ),
   )
 );

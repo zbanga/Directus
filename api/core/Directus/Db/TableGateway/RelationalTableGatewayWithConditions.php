@@ -59,13 +59,12 @@ class RelationalTableGatewayWithConditions extends RelationalTableGateway {
             break;
         }
 
-
         // Note: be sure to explicitly check for null, because the value may be
         // '0' or 0, which is meaningful.
-        if (null !== $params[STATUS_COLUMN_NAME] && $hasActiveColumn) {
-            $haystack = is_array($params[STATUS_COLUMN_NAME])
-                ? $params[STATUS_COLUMN_NAME]
-                : explode(",", $params[STATUS_COLUMN_NAME]);
+        if (null !== $params['visible_status'] && $hasActiveColumn) {
+            $haystack = is_array($params['visible_status'])
+                ? $params['visible_status']
+                : explode(",", $params['visible_status']);
 
             if (!isset($params['table_name']) || empty($params['table_name'])) {
               $tableName = $this->getTable();

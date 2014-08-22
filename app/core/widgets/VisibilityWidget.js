@@ -36,8 +36,10 @@ function(app, Backbone, PreferenceModel) {
         if($target.attr('data-status') !== undefined && $target.attr('data-status') !== false) {
           var value = $(e.target).val();
           var name = {currentPage: 0};
-          name[app.statusMapping.status_name] = value;
+          name.visible_status = value;
           this.collection.setFilter(name);
+
+          console.log(this.collection);
 
           this.listenToOnce(this.collection.preferences, 'sync', function() {
             if(this.basePage) {

@@ -25,7 +25,7 @@ define(['app','backbone'], function(app, Backbone) {
 
   var template = '<div class="status-group" style="margin-top:4px;"> \
                   {{#mapping}} \
-                    <label style="margin-right:40px;display:inline-block;color:{{color}}" class="bold"><input style="display:inline-block;width:auto;margin-right:10px;" type="radio" {{#if ../readonly}}disabled{{/if}} name="{{../name}}" value="{{id}}" {{#if active}}checked{{/if}}>{{name}}</label> \
+                    <label style="margin-right:40px;display:inline-block;color:{{color}}" class="bold"><input style="display:inline-block;width:auto;margin-right:10px;" type="radio" {{#if readonly}}disabled{{/if}} name="{{../name}}" value="{{id}}" {{#if active}}checked{{/if}}>{{name}}</label> \
                   {{/mapping}} \
                   </div>';
 
@@ -53,18 +53,25 @@ define(['app','backbone'], function(app, Backbone) {
 
       var mapping = app.statusMapping.mapping;
       var value = this.options.value;
+      var allowedStates = this.model.privileges.get('allowed_status').split(',');
+      var canWrite = this.options.canWrite;
+
       data.mapping = [];
-      for(var key in mapping) {
-        var entry = mapping[key];
-        entry.id = key;
-        if(key == value) {
-          entry.active = true;
+      mapping.forEach(function(item) {
+        if(item.id === value) {
+          item.active = true;
         } else {
-          entry.active = false;
+          item.active = false;
         }
 
-        data.mapping.push(entry);
-      }
+        if((allowedStates.indexOf(item.id.toString()) !== -1 || item.id === value) && canWrite)
+        {
+          item.readonly = false;
+        } else {
+          item.readonly = true;
+        }
+        data.mapping.push(item);
+      });
 
       data.mapping.sort(function(a, b) {
         if(a.sort < b.sort) {
@@ -78,7 +85,6 @@ define(['app','backbone'], function(app, Backbone) {
 
       data.name = this.options.name;
 
-      data.readonly = !this.options.canWrite;
       return data;
     }
 

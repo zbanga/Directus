@@ -54,7 +54,10 @@ define(['app','backbone'], function(app, Backbone) {
 
       var mapping = app.statusMapping.mapping;
       var value = this.options.value;
-      var allowedStates = this.model.privileges.get('allowed_status').split(',');
+      var allowedStates = [];
+      if(this.model.privileges.get('allowed_status')) {
+        allowedStates = this.model.privileges.get('allowed_status').split(',');
+      }
       var canWrite = this.options.canWrite;
 
       data.mapping = [];

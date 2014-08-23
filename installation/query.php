@@ -124,7 +124,7 @@ $create_preferences = "CREATE TABLE `directus_preferences` (
   `columns_visible` varchar(300) DEFAULT NULL,
   `sort` varchar(64) DEFAULT 'id',
   `sort_order` varchar(5) DEFAULT 'asc',
-  `active` varchar(5) DEFAULT '3',
+  `visible_status` varchar(255) DEFAULT '3',
   `search_string` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user` (`user`,`table_name`,`title`),

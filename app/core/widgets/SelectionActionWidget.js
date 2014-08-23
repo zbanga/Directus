@@ -50,30 +50,15 @@ function(app, Backbone) {
     doAction: function(e) {
       var value = $(e.target).closest('span').attr('data-value');
       var collection = this.collection;
-      var active = collection.getFilter('active');
 
       var $checked = $('.select-row:checked');
       var expectedResponses = $checked.length;
-
-
-      if(!isNaN(active)) {
-        var name = {};
-        name[app.statusMapping.status_name] = parseInt(active);
-        var startCount = collection.where(name).length;
-      }
 
       var success = function() {
         expectedResponses--;
         if (expectedResponses === 0) {
           collection.trigger('visibility');
           collection.trigger('select');
-          if(startCount) {
-            var name = {};
-            name[app.statusMapping.status_name] = parseInt(active);
-            if(collection.where(name).length != startCount) {
-              collection.updateActiveCount(startCount - collection.where({name: parseInt(active)}).length);
-            }
-          }
         }
       };
 

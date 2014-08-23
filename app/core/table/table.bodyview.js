@@ -33,7 +33,7 @@ function(app, Backbone) {
 
     serialize: function() {
       var rowIdentifiers, activeState, models, rows;
-      var activeColumns = this.collection.getFilter('active') || "1,2";
+      var activeColumns = this.collection.getFilter('visible_status') || "1,2";
       var highlightIds = this.options.highlight || [];
 
       rowIdentifiers = this.options.rowIdentifiers;

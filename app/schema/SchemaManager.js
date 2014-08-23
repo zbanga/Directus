@@ -50,7 +50,7 @@ define(function(require, exports, module) {
   var tableSchemas = {
     tables: new TableCollection([], {
       filters: {
-        columns: ['table_name','comment','active','date_modified','single'],
+        columns: ['table_name','comment','date_modified','single'],
         conditions: {hidden: false, is_junction_table: false}
       }
     })

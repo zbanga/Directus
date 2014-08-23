@@ -20,15 +20,15 @@ function(app, Backbone) {
 
   Tabs.Collection = Backbone.Collection.extend({
     setActive: function(route) {
-
       var model = this.get(route);
+
       //deactive all tabs
-      _.each(this.where({'active':true}),function(model) {
-        model.unset('active',{silent: true});
+      _.each(this.where({'tab_enabled':true}),function(model) {
+        model.unset('tab_enabled',{silent: true});
       });
 
       if (!model) { return; }
-      model.set({'active':true});
+      model.set({'tab_enabled':true});
     }
   });
 

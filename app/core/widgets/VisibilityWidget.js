@@ -15,9 +15,9 @@ function(app, Backbone, PreferenceModel) {
       <span class="icon icon-triangle-down"></span> \
       <select id="visibilitySelect" name="status" class="change-visibility"> \
         <optgroup label="Status"> \
-          <option data-status value="{{allKeys}}">View All</option> \
+          <option data-status {{#if allKeysSelected}}selected{{/if}} value="{{allKeys}}">View All</option> \
           {{#mapping}} \
-            <option data-status value="{{id}}">View {{capitalize name}}</option> \
+            <option data-status {{#if selected}}selected{{/if}} value="{{id}}">View {{capitalize name}}</option> \
           {{/mapping}} \
         </optgroup> \
       </select> \
@@ -97,15 +97,18 @@ function(app, Backbone, PreferenceModel) {
     serialize: function() {
       var data = {hasActiveColumn: this.options.hasActiveColumn, mapping: []};
       var mapping = app.statusMapping.mapping;
-
+      console.log();
+      var collection = this.collection;
       var keys = [];
-      for(var key in mapping) {
-        //Do not show option for deleted status
-        if(key != app.statusMapping.deleted_num) {
-          data.mapping.push({id: key, name: mapping[key].name, sort: mapping[key].sort});
-          keys.push(key);
+      mapping.forEach(function(item) {
+        if(item.id.toString() == collection.preferences.get('visible_status')) {
+          item.selected = true;
+        } else {
+          item.selected = false;
         }
-      }
+        data.mapping.push(item);
+        keys.push(item.id);
+      });
 
       data.mapping.sort(function(a, b) {
         if(a.sort < b.sort) {
@@ -118,19 +121,14 @@ function(app, Backbone, PreferenceModel) {
       });
 
       data.allKeys = keys.join(',');
+      if(data.allKeys == collection.preferences.get('visible_status')) {
+        data.allKeysSelected = true;
+      } else {
+        data.allKeysSelected = false;
+      }
       return data;
     },
 
-    afterRender: function() {
-      if(this.options.hasActiveColumn) {
-        $('#visibilitySelect').val(this.collection.preferences.get(app.statusMapping.status_name));
-      }
-
-      // Adjust dropdown width dynamically
-      // var sel = this.$el.find('#visibilitySelect');
-      // this.$el.find('#templateOption').text( sel.find(":selected").text() );
-      // sel.width( this.$el.find('#template').width() * 1.03 + 10 ); // +10 is for arrow on right
-    },
     initialize: function() {
       var activeTable = this.collection.table.id;
 

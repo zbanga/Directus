@@ -206,6 +206,11 @@ define(function(require, exports, module) {
 
       this.model.on('sync', function(e) {
         this.model.changed = {};
+        console.log(this.model.get(app.statusMapping.status_name));
+        console.log(this.model.privileges);
+        console.log(this.model.collection);
+        var SchemaManager = require('./../schema/SchemaManager');
+        this.collection.privileges = SchemaManager.getPrivileges(this.model.table.id, this.model.get(app.statusMapping.status_name));
         this.render();
       }, this);
     }

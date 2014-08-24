@@ -156,7 +156,17 @@ define(function(require, exports, module) {
     // Registers user priviliges
     registerPrivileges: function(data) {
       _.each(data, function(privilege) {
-        privileges[privilege.table_name] = new Backbone.Model(privilege, {parse:true});
+        if(!privileges[privilege.table_name]) {
+          privileges[privilege.table_name] = {};
+        }
+
+        var entryKey = 'default';
+
+        if(privilege.status_id !== null && privilege.status_id !== undefined) {
+          entryKey = privilege.status_id;
+        }
+
+        privileges[privilege.table_name][entryKey] = new Backbone.Model(privilege, {parse:true});
       }, this);
     },
 
@@ -172,8 +182,11 @@ define(function(require, exports, module) {
       return tableSchemas.tables;
     },
 
-    getPrivileges: function(tableName) {
-      return privileges[tableName];
+    getPrivileges: function(tableName, statusId) {
+      if(statusId === undefined) {
+        statusId = 'default';
+      }
+      return privileges[tableName][statusId];
     },
 
     countTables: function() {
@@ -188,7 +201,7 @@ define(function(require, exports, module) {
         table: tableSchemas.tables.get(tableName),
         structure: columnSchemas.tables[tableName],
         preferences: preferences[tableName],
-        privileges: privileges[tableName]
+        privileges: privileges[tableName]['default']
       };
     },
 

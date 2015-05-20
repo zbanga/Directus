@@ -129,7 +129,7 @@ class RelationalTableGateway extends AclAwareTableGateway {
         // parent
         if ($activityEntryMode === self::ACTIVITY_ENTRY_MODE_PARENT) {
             $parentData = array(
-                'id'            => $recordData['id'],
+                'id'            => array_key_exists('id', $recordData) ? $recordData['id'] : null,
                 'table_name'    => $tableName
             );
         }
@@ -170,7 +170,7 @@ class RelationalTableGateway extends AclAwareTableGateway {
                     'data'          => json_encode($fullRecordData),
                     'delta'         => json_encode($deltaRecordData),
                     'row_id'        => $rowId,
-                    'identifier'    => null,
+                    'identifier'    => $this->findRecordIdentifier($schemaArray, $fullRecordData),
                     'logged_ip'     => $_SERVER['REMOTE_ADDR'],
                     'user_agent'    => $_SERVER['HTTP_USER_AGENT']
                 );
@@ -484,6 +484,15 @@ class RelationalTableGateway extends AclAwareTableGateway {
                 ? $params[STATUS_COLUMN_NAME]
                 : explode(",", $params[STATUS_COLUMN_NAME]);
             $select->where->in(STATUS_COLUMN_NAME, $haystack);
+        }
+
+        // Select only ids from the ids if provided
+        if (array_key_exists('ids', $params)) {
+            $entriesIds = array_filter(explode(',', $params['ids']), 'is_numeric');
+
+            if (count($entriesIds) > 0) {
+                $select->where->in($this->getTable() . '.id', $entriesIds);
+            }
         }
 
         // Where

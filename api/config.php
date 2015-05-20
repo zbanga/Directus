@@ -15,7 +15,7 @@ define('DIRECTUS_ENV',  'development');
 
 // MySQL Settings
 define('DB_HOST',        'localhost');
-define('DB_NAME',        'build');
+define('DB_NAME',        'dist');
 define('DB_USER',        'root');
 define('DB_PASSWORD',    '123');
 define('DB_PREFIX',      '');

@@ -283,36 +283,58 @@ class AclAwareTableGateway extends \Zend\Db\TableGateway\TableGateway {
     */
     public function addColumn($tableName, $tableData) {
       $directus_types = array('MANYTOMANY', 'ONETOMANY', 'ALIAS');
-      $alias_columns = array('table_name', 'column_name', 'data_type', 'table_related', 'junction_table', 'junction_key_left','junction_key_right', 'sort', 'ui', 'comment', 'relationship_type');
-      $column_name = $tableData['column_name'];
       $data_type = $tableData['data_type'];
-      $comment = $tableData['comment'];
+      // TODO: list all types which need manytoone ui
+      // Hard-coded
+      $manytoones = array('single_file', 'MANYTOONE');
 
       if (in_array($data_type, $directus_types)) {
           //This is a 'virtual column'. Write to directus schema instead of MYSQL
-          $tableData['table_name'] = $tableName;
-          $tableData['sort'] = 9999;
-          $data = array_intersect_key($tableData, array_flip($alias_columns));
-
-          $this->addOrUpdateRecordByArray($data, 'directus_columns');
+          $this->addVirtualColumn($tableName, $tableData);
       } else {
-          if (array_key_exists('char_length', $tableData)) {
-              $data_type = $data_type.'('.$tableData['char_length'].')';
+          $this->addTableColumn($tableName, $tableData);
+          // Temporary solutions to #481, #645
+          if(array_key_exists('ui', $tableData) && in_array($tableData['ui'], $manytoones)) {
+            $tableData['relationship_type'] = 'MANYTOONE';
+            $tableData['junction_key_right'] = $tableData['column_name'];
+            $this->addVirtualColumn($tableName, $tableData);
           }
-          $sql = "ALTER TABLE `$tableName` ADD COLUMN `$column_name` $data_type COMMENT '$comment'";
-
-          $this->adapter->query( $sql )->execute();
       }
 
-      return $column_name;
+      return $tableData['column_name'];
+    }
+
+    protected function addTableColumn($tableName, $columnData) {
+      $column_name = $columnData['column_name'];
+      $data_type = $columnData['data_type'];
+      $comment = $columnData['comment'];
+
+      if (array_key_exists('char_length', $columnData)) {
+          $data_type = $data_type.'('.$columnData['char_length'].')';
+      }
+      $sql = "ALTER TABLE `$tableName` ADD COLUMN `$column_name` $data_type COMMENT '$comment'";
+
+      $this->adapter->query( $sql )->execute();
+    }
+
+    protected function addVirtualColumn($tableName, $columnData) {
+      $alias_columns = array('table_name', 'column_name', 'data_type', 'table_related', 'junction_table', 'junction_key_left','junction_key_right', 'sort', 'ui', 'comment', 'relationship_type');
+
+      $columnData['table_name'] = $tableName;
+      $columnData['sort'] = 9999;
+
+      $data = array_intersect_key($columnData, array_flip($alias_columns));
+      return $this->addOrUpdateRecordByArray($data, 'directus_columns');
     }
 
     protected function logger() {
         return Bootstrap::get('app')->getLog();
     }
 
-    public function castFloatIfNumeric(&$value) {
-        $value = is_numeric($value) ? (float) $value : $value;
+    public function castFloatIfNumeric(&$value, $key) {
+        if ($key != 'table_name') {
+            $value = is_numeric($value) ? (float) $value : $value;
+        }
     }
 
     /**
@@ -545,6 +567,11 @@ class AclAwareTableGateway extends \Zend\Db\TableGateway\TableGateway {
           } else if ($this->acl->hasTablePrivilege($deleteTable, 'delete')) {
             $canHardDelete = true;
           }
+        }
+
+        // @todo: clean way
+        if ($deleteTable === 'directus_bookmarks') {
+          $canBigHardDelete = true;
         }
         
         /**

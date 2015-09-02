@@ -9,8 +9,9 @@ class Console
     private $command = '';
     private $options = array();
     private $dbh = null;
+    private $directusPath = '';
 
-    public function __construct($argv = array())
+    public function __construct($directusPath = '', $argv = array())
     {
         if (!$argv) {
             $argv = $_SERVER['argv'] ?: array();
@@ -18,6 +19,8 @@ class Console
 
         // get rid of the command name
         array_shift($argv);
+
+        $this->directusPath = $directusPath;
 
         $this->command = array_shift($argv);
         $this->options = $this->parseOptions($argv);
@@ -27,8 +30,8 @@ class Console
 
     private function connectDatabase()
     {
-        if (file_exists( DIRECTUS_PATH . '/api/config.php')) {
-            require DIRECTUS_PATH . '/api/config.php';
+        if (file_exists( $this->directusPath . '/api/config.php')) {
+            require $this->directusPath . '/api/config.php';
 
             try {
                 $this->dbh = new \PDO("mysql:host=".DB_HOST.";dbname=".DB_NAME, DB_USER, DB_PASSWORD);
@@ -56,7 +59,7 @@ class Console
 
     private function createConfig()
     {
-        require DIRECTUS_PATH . '/installation/config_setup.php';
+        require $this->directusPath . '/installation/config_setup.php';
 
         $options = $this->options;
         foreach($options as $key => $value) {
@@ -89,25 +92,24 @@ class Console
             }
         }
 
-        $data = $options;
-        WriteConfig($data, DIRECTUS_PATH);
+        WriteConfig($options, $this->directusPath);
 
         $this->clear();
     }
 
     private function createDatabase()
     {
-        if (!file_exists(DIRECTUS_PATH . '/api/config.php')) {
+        if (!file_exists($this->directusPath . '/api/config.php')) {
             echo "Config file does not exists, run [directus config]" . PHP_EOL;
             exit;
         }
 
-        if (!file_exists(DIRECTUS_PATH . '/api/ruckusing.conf.php')) {
+        if (!file_exists($this->directusPath . '/api/ruckusing.conf.php')) {
             echo "Migration configuration file does not exists" . PHP_EOL;
             exit;
         }
 
-        $config = require DIRECTUS_PATH . '/api/ruckusing.conf.php';
+        $config = require $this->directusPath . '/api/ruckusing.conf.php';
         $dbconfig = getDatabaseConfig(array(
           'type' => 'mysql',
           'host' => DB_HOST,
@@ -131,7 +133,7 @@ class Console
 
     private function install()
     {
-        if (!file_exists(DIRECTUS_PATH . '/api/config.php')) {
+        if (!file_exists($this->directusPath . '/api/config.php')) {
             echo "Config file does not exists, run [directus config]" . PHP_EOL;
             exit;
         }
@@ -210,8 +212,8 @@ class Console
         $insert = "INSERT INTO `directus_settings` (`id`, `collection`, `name`, `value`)
                       VALUES
                       (1,'global','cms_user_auto_sign_out','60'),
-                      (3,'global','site_name','".$site_name."'),
-                      (4,'global','site_url','http://examplesite.dev/'),
+                      (3,'global','project_name','".$site_name."'),
+                      (4,'global','project_url','http://examplesite.dev/'),
                       (5,'global','cms_color','#7ac943'),
                       (6,'global','rows_per_page','200'),
                       (7,'files','storage_adapter','FileSystemAdapter'),
@@ -221,9 +223,8 @@ class Console
                       (11,'files','thumbnail_quality','100'),
                       (12,'files','thumbnail_size','200'),
                       (13,'global','cms_thumbnail_url',''),
-                      (14,'files','file_file_naming','file_id'),
-                      (15,'files','file_title_naming','file_name'),
-                      (16,'files','thumbnail_crop_enabled','1');";
+                      (14,'files','file_naming','file_id'),
+                      (15,'files','thumbnail_crop_enabled','1');";
 
         $statement = $this->dbh->prepare($insert);
         $statement->execute();
@@ -242,7 +243,7 @@ class Console
         $options = array();
 
         foreach($argv as $arg) {
-            if(preg_match("/^(--)([A-Za-z0-9-_]+)(=)?([A-Za-z0-9-_@\.\ ]+)*$/", $arg, $argMatch)) {
+            if(preg_match("/^(-{1,2})([A-Za-z0-9-_]+)(=)?([A-Za-z0-9-_@\.\ ]+)*$/", $arg, $argMatch)) {
                 $value = '';
                 if (count($argMatch) == 5) {
                     $value = $argMatch[4];

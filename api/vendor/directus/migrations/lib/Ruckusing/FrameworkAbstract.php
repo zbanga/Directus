@@ -109,7 +109,10 @@ abstract class FrameworkAbstract implements FrameworkInterface
 
         //initialize logger
         $this->logger = $log;
-        $this->initialize_logger();
+        // @todo: logger should be working here
+        try {
+            $this->initialize_logger();
+        } catch(Exception $e) {};
 
         //include all adapters
         //$this->load_all_adapters(RUCKUSING_BASE . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'Ruckusing' . DIRECTORY_SEPARATOR . 'Adapter');

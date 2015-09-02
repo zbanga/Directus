@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Zend\\Db\\' => array($vendorDir . '/zendframework/zend-db'),
     'Twig_Extensions_' => array($vendorDir . '/slim/extras/Views/Extension'),
     'Task' => array($vendorDir . '/directus/migrations/lib'),
     'Slim\\Extras' => array($vendorDir . '/slim/extras'),
